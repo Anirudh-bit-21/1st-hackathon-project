@@ -30,7 +30,7 @@ In each file, find the JavaScript variable named `API_KEY` and replace the place
 const API_KEY = "YOUR_API_KEY_GOES_HERE";
 ```
 
-✨ Key Features
+## ✨ Key Features
 AI Mock Interview Arena (mock.html): Practice live interviews with a Gemini-powered AI. It validates company names, asks role-specific questions, and provides real-time feedback on your answers (clarity, accuracy, and structure).
 
 AI Company Roadmaps (mock.html): Search for any company (e.g., Google, Microsoft) and get an AI-generated preparation roadmap, including key focus areas, top DSA questions, and recommended practice problems.
@@ -45,7 +45,7 @@ Profile Page (profile.html): A dedicated page to view user stats, activity summa
 
 Modern UI: Fully responsive design built with Tailwind CSS, including a dark/light mode toggle.
 
-📂 File Structure
+## 📂 File Structure
 index.html: The main public landing page.
 
 auth.html: The login page with hard-coded user credentials.
@@ -60,7 +60,7 @@ profile.html: The user's profile page, displaying activity and personal info.
 
 test.html: An alternate/test version of the main dashboard.
 
-🛠️ Technologies Used
+## 🛠️ Technologies Used
 Frontend: HTML5, Tailwind CSS
 
 JavaScript (ES6+):
@@ -82,5 +82,3 @@ AOS (Animate on Scroll)
 Typed.js
 
 Lucide Icons# 1st-hackathon-project
-# 1st-hackathon-project
-# 1st-hackathon-project
