@@ -28,6 +28,8 @@ In each file, find the JavaScript variable named `API_KEY` and replace the place
 ```javascript
 // Find this line in the <script> tag of mock.html, main.html, and codepractice.html
 const API_KEY = "YOUR_API_KEY_GOES_HERE";
+```
+
 ✨ Key Features
 AI Mock Interview Arena (mock.html): Practice live interviews with a Gemini-powered AI. It validates company names, asks role-specific questions, and provides real-time feedback on your answers (clarity, accuracy, and structure).
 
