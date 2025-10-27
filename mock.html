@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLA Placement Prep Hub | Hackathon Edition</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --background: #000000;
+            --sidebar: #0a0a0a;
+            --card: rgba(10, 10, 10, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6d28d9;
+            --primary-hover: #7c3aed;
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+            --spotlight-color: rgba(124, 58, 237, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 25px 25px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--background); }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+        .glass-card {
+            background: var(--card);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .glass-card:hover:before {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.15);
+            transform: perspective(1200px) rotateY(1deg) rotateX(2deg) scale(1.02);
+        }
+
+        .sidebar-item.active {
+            background-image: linear-gradient(to right, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 7px 20px 0 rgba(124, 58, 237, 0.3);
+        }
+        .sidebar-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-item:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            transform: translateX(5px) scale(1.02);
+        }
+        
+        .page { display: none; }
+        .page.active {
+            display: block;
+            animation: fadeIn 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse-ring { 0% { transform: scale(.33); } 80%, 100% { opacity: 0; } }
+        @keyframes pulse-dot { 0% { transform: scale(.8); } 50% { transform: scale(1); } 100% { transform: scale(.8); } }
+        
+        .animated-gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #f8fafc, #a78bfa);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 3s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 200% center; }
+            100% { background-position: 0% center; }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="flex h-screen bg-black/50">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-sidebar border-r border-slate-800 p-4 transition-all duration-300 z-20">
+            <div class="flex items-center space-x-3 mb-12 px-2">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="Logo" class="h-10 w-auto">
+                <span class="text-xl font-bold text-white tracking-wider">Prep Hub</span>
+            </div>
+            <nav class="flex flex-col space-y-3 flex-grow">
+                <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="layout-grid"></i><span>Dashboard</span>
+                </a>
+                <a href="#interview" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="mic-2"></i><span>AI Interview</span>
+                </a>
+                <a href="#roadmaps" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="map"></i><span>Roadmaps</span>
+                </a>
+                <a href="#contests" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="swords"></i><span>Contests</span>
+                </a>
+            </nav>
+            <div class="mt-4">
+                 <a href="main.html" class="sidebar-item flex items-center justify-center space-x-3 px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                    <i data-lucide="home"></i><span>Home</span>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-b border-slate-800 p-4 z-50 flex justify-between items-center">
+             <div class="flex items-center space-x-3">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="Logo" class="h-8 w-auto">
+                <span class="text-lg font-bold text-white">Prep Hub</span>
+            </div>
+            <button id="mobile-menu-btn" class="p-2"> <i data-lucide="menu"></i> </button>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-y-auto pt-20 md:pt-0">
+            <main class="flex-1 p-4 md:p-6 lg:p-8">
+                
+                <div id="dashboard-page" class="page active">
+                    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-black text-white">Dashboard</h1>
+                            <p class="text-text-secondary">Welcome back, future tech leader!</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <img src="https://placehold.co/40x40/7c3aed/FFFFFF?text=S" alt="User" class="w-10 h-10 rounded-full border-2 border-primary">
+                        </div>
+                    </header>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-card p-8 flex flex-col justify-between bg-cover bg-center">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold animated-gradient-text">Engineer Your Success</h2>
+                                <p class="text-slate-400 mt-2 max-w-lg">Practice for top-tier companies with our Gemini-powered AI. Get instant, killer feedback to crush your interviews.</p>
+                            </div>
+                            <div class="mt-8">
+                                <a href="#interview" class="sidebar-item bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-primary-hover transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/20 inline-block">
+                                    Start AI Session Now
+                                </a>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Your Progress</h2>
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                        
+                        <div class="lg:col-span-3 glass-card p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Explore Company Insights</h2>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                                <input type="text" id="company-insight-search" class="flex-grow w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Search a company name...">
+                                <button id="find-insights-btn" class="bg-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 flex items-center justify-center space-x-2">
+                                    <i data-lucide="search"></i><span>Find</span>
+                                </button>
+                            </div>
+                            <div id="company-info-results" class="mb-6">
+                                <!-- AI results will appear here -->
+                            </div>
+                             <h3 class="font-semibold text-text-secondary mb-4">Or pick from top companies:</h3>
+                            <div id="company-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
+                                <!-- 50+ company logos will be dynamically inserted here -->
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-3 glass-card p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Active Contests</h2>
+                             <div class="space-y-4">
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                    <div>
+                                        <h4 class="font-semibold text-white">CodeSprint Weekly #21</h4>
+                                        <p class="text-sm text-slate-400">Sponsored by Amazon</p>
+                                    </div>
+                                    <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                        <p class="font-mono text-primary" id="countdown1">Loading...</p>
+                                        <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                    </div>
+                                </div>
+                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                    <div>
+                                        <h4 class="font-semibold text-white">Data Structures Challenge</h4>
+                                        <p class="text-sm text-slate-400">Sponsored by Microsoft</p>
+                                    </div>
+                                    <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                        <p class="font-mono text-primary" id="countdown2">Loading...</p>
+                                        <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="interview-page" class="page">
+                     <h1 class="text-3xl sm:text-4xl font-bold text-white mb-8">AI Mock Interview</h1>
+                    <div id="interview-setup" class="glass-card p-8 max-w-2xl mx-auto">
+                        <h2 class="text-2xl font-bold text-center text-white mb-6">Configure Your Session</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="company-search" class="block text-sm font-medium text-slate-300 mb-2">Target Company</label>
+                                <div class="relative">
+                                    <input type="text" id="company-search" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="E.g., Google, Microsoft, a startup...">
+                                </div>
+                                <p id="company-validation-msg" class="text-red-400 text-xs mt-1 h-4"></p>
+                            </div>
+                             <div>
+                                <label for="role-select" class="block text-sm font-medium text-slate-300 mb-2">Target Role</label>
+                                <select id="role-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option>Software Development Engineer (SDE-1)</option>
+                                    <option>Data Analyst</option>
+                                    <option>Product Manager</option>
+                                    <option>Cloud Engineer</option>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="type-select" class="block text-sm font-medium text-slate-300 mb-2">Interview Type</label>
+                                <select id="type-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option value="technical">Technical (Data Structures & Algorithms)</option>
+                                    <option value="behavioral">Behavioral (STAR Method)</option>
+                                    <option value="system-design">System Design</option>
+                                </select>
+                            </div>
+                            <button id="start-interview-btn" class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/30 flex items-center justify-center space-x-2">
+                                <i data-lucide="play-circle"></i>
+                                <span>Start Interview</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="interview-session" class="hidden">
+                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="glass-card p-6 lg:p-8">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h2 class="text-xl font-bold text-white">Interview Question</h2>
+                                        <button id="end-interview-btn" class="text-sm bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">End Session</button>
+                                    </div>
+                                    <div id="question-area" class="bg-slate-900/50 p-4 rounded-lg min-h-[150px] text-slate-300">
+                                        <div class="flex items-center justify-center h-full" id="question-loader">
+                                            <i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i>
+                                            <span class="ml-3">Generating your first question...</span>
+                                        </div>
+                                        <p id="question-text" class="hidden"></p>
+                                    </div>
+                                    
+                                    <div class="mt-6 text-center">
+                                         <button id="start-answering-btn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20 flex items-center justify-center space-x-2 w-full disabled:bg-gray-500 disabled:cursor-not-allowed">
+                                            <i data-lucide="mic"></i>
+                                            <span>Start Answering</span>
+                                        </button>
+                                        <div id="recording-indicator" class="hidden items-center justify-center mt-4 text-slate-400">
+                                            <div class="relative flex items-center justify-center w-8 h-8">
+                                                <span class="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" style="animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></span>
+                                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600" style="animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -.4s infinite;"></span>
+                                            </div>
+                                            <span class="ml-2">Recording... Click to Stop</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                         <h3 class="font-semibold text-white mb-2">Your Answer (Live Transcript):</h3>
+                                         <p id="transcript-area" class="text-slate-400 text-sm min-h-[50px] bg-slate-900/50 p-3 rounded-lg"></p>
+                                    </div>
+                                 </div>
+
+                                 <div class="glass-card p-6 lg:p-8">
+                                     <h2 class="text-xl font-bold text-white mb-4">AI Feedback</h2>
+                                     <div id="feedback-area" class="space-y-4">
+                                        <div class="flex items-center justify-center h-full text-slate-500">
+                                            <p>Your feedback will appear here after you answer.</p>
+                                        </div>
+                                     </div>
+                                 </div>
+                             </div>
+                             
+                             <div class="glass-card p-2">
+                                <video id="user-camera" autoplay playsinline muted class="w-full h-full object-cover rounded-xl"></video>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+
+                <div id="roadmaps-page" class="page">
+                    <h1 class="text-3xl sm:text-4xl font-black text-white mb-6">Company Roadmaps</h1>
+                    <div class="mb-8 relative">
+                        <input type="text" id="roadmap-search" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 pl-12 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Search roadmaps... (Or use the AI search on Dashboard)">
+                    </div>
+                    <div id="roadmap-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    </div>
+                </div>
+                
+                <div id="roadmap-detail-page" class="page">
+                    <button id="back-to-roadmaps" class="sidebar-item mb-8 flex items-center space-x-2 text-sm font-semibold px-4 py-2 rounded-lg">
+                        <i data-lucide="arrow-left"></i><span>Back to Dashboard</span>
+                    </button>
+                    <div id="roadmap-detail-content">
+                        <!-- AI Generated content will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="contests-page" class="page">
+                    <h1 class="text-3xl sm:text-4xl font-black text-white mb-6">Coding Contests</h1>
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Upcoming & Live Contests</h2>
+                         <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                <div>
+                                    <h4 class="font-semibold text-white">CodeSprint Weekly #21</h4>
+                                    <p class="text-sm text-slate-400">Sponsored by Amazon</p>
+                                </div>
+                                <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                    <p class="font-mono text-primary" id="countdown3">Loading...</p>
+                                    <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                </div>
+                            </div>
+                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                <div>
+                                    <h4 class="font-semibold text-white">Data Structures Challenge</h4>
+                                    <p class="text-sm text-slate-400">Sponsored by Microsoft</p>
+                                </div>
+                                <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                    <p class="font-mono text-primary" id="countdown4">Loading...</p>
+                                    <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="session-summary-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+         <div class="glass-card max-w-lg w-full p-8 relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="text-center">
+                <i data-lucide="award" class="w-16 h-16 text-primary mx-auto mb-4"></i>
+                <h2 class="text-2xl font-bold text-white">Session Summary</h2>
+                <p class="text-slate-400 mt-2">Great work! Here's how you performed in this session.</p>
+            </div>
+            <div class="my-6 text-center">
+                <p class="text-slate-300">Average Score</p>
+                <p id="modal-avg-score" class="text-5xl font-bold text-white mt-1">8.5</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-white mb-3">Key Improvement Tips:</h3>
+                <ul id="modal-key-tips" class="space-y-2 list-disc list-inside text-slate-400 text-sm">
+                </ul>
+            </div>
+            <button id="modal-return-btn" class="mt-8 w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors">Return to Dashboard</button>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+
+        // --- Card Mouse Effect ---
+        document.body.addEventListener('mousemove', e => {
+            document.querySelectorAll('.glass-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // --- SPA Navigation Logic ---
+        const pages = document.querySelectorAll('.page');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        
+        function navigate(hash) {
+            pages.forEach(p => p.classList.remove('active'));
+            sidebarItems.forEach(i => i.classList.remove('active'));
+            
+            let targetPage = document.querySelector(`${hash}-page`);
+            let targetSidebarItem = document.querySelector(`.sidebar-item[href="${hash}"]`);
+
+            if(hash.startsWith('#roadmap-detail-')) {
+                targetPage = document.getElementById('roadmap-detail-page');
+                targetSidebarItem = document.querySelector(`.sidebar-item[href="#roadmaps"]`);
+            }
+            
+            if (targetPage) targetPage.classList.add('active');
+            else document.getElementById('dashboard-page').classList.add('active');
+
+            if(targetSidebarItem) targetSidebarItem.classList.add('active');
+            else document.querySelector('.sidebar-item[href="#dashboard"]').classList.add('active');
+        }
+        
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const href = item.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    window.location.hash = href;
+                }
+                // For external links or other file links, let the browser handle it.
+            });
+        });
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash || '#dashboard';
+            if (hash.startsWith('#roadmap-detail-')) {
+                const companyName = hash.split('-').slice(2).join('-');
+                showRoadmapDetail(companyName);
+            }
+            navigate(hash);
+        });
+        
+        const initialHash = window.location.hash || '#dashboard';
+        if (initialHash.startsWith('#roadmap-detail-')) {
+            const companyName = initialHash.split('-').slice(2).join('-');
+            showRoadmapDetail(companyName);
+        }
+        navigate(initialHash);
+        
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            if (!sidebar.classList.contains('hidden')) {
+                 sidebar.classList.add('absolute', 'h-full', 'w-64');
+            } else {
+                 sidebar.classList.remove('absolute', 'h-full', 'w-64');
+            }
+        });
+
+
+        // --- DYNAMIC PROGRESS CHART LOGIC ---
+        let userProgress = {
+            'technical': { score: 75, count: 1 },
+            'behavioral': { score: 85, count: 1 },
+            'system-design': { score: 40, count: 1 }
+        };
+        let progressChart;
+        function renderProgressChart() {
+            const ctx = document.getElementById('progressChart')?.getContext('2d');
+            if (!ctx) return;
+            if(progressChart) progressChart.destroy();
+            progressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Technical', 'Behavioral', 'System Design'],
+                    datasets: [{
+                        data: [
+                            userProgress['technical'].score,
+                            userProgress['behavioral'].score,
+                            userProgress['system-design'].score
+                        ],
+                        backgroundColor: ['#6d28d9', '#db2777', '#0ea5e9'],
+                        borderColor: '#0a0a0a',
+                        borderWidth: 4,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10, cornerRadius: 8,
+                            callbacks: { label: (c) => `${c.label}: ${c.raw.toFixed(1)}%` }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateProgress(interviewType, newScore) {
+            if (userProgress[interviewType]) {
+                const oldTotalScore = userProgress[interviewType].score * userProgress[interviewType].count;
+                userProgress[interviewType].count++;
+                userProgress[interviewType].score = (oldTotalScore + (newScore * 10)) / userProgress[interviewType].count;
+                renderProgressChart();
+            }
+        }
+
+        // --- Countdown Timers ---
+        function startCountdown(elementId, endTime) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    clearInterval(interval);
+                    element.textContent = "Contest Ended";
+                    return;
+                }
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                element.textContent = `${d}d ${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        // --- AI Interview Logic ---
+        const startInterviewBtn = document.getElementById('start-interview-btn');
+        const interviewSetup = document.getElementById('interview-setup');
+        const interviewSession = document.getElementById('interview-session');
+        const endInterviewBtn = document.getElementById('end-interview-btn');
+        const questionLoader = document.getElementById('question-loader');
+        const questionText = document.getElementById('question-text');
+        const startAnsweringBtn = document.getElementById('start-answering-btn');
+        const recordingIndicator = document.getElementById('recording-indicator');
+        const transcriptArea = document.getElementById('transcript-area');
+        const feedbackArea = document.getElementById('feedback-area');
+        const typeSelect = document.getElementById('type-select');
+        const companySearchInput = document.getElementById('company-search');
+        const companyValidationMsg = document.getElementById('company-validation-msg');
+        const userCamera = document.getElementById('user-camera');
+
+        let recognition;
+        let isRecording = false;
+        let sessionScores = [];
+        let sessionKeyTips = [];
+        let localStream;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.onresult = (event) => {
+                let interim = '', final = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    event.results[i].isFinal ? final += event.results[i][0].transcript : interim += event.results[i][0].transcript;
+                }
+                transcriptArea.textContent = final + interim;
+            };
+        } else {
+            console.error("Speech Recognition not supported.");
+            startAnsweringBtn.disabled = true;
+            startAnsweringBtn.textContent = "Browser Not Supported";
+        }
+
+        async function startCamera() {
+            try {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                }
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                userCamera.srcObject = localStream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                // Handle error - maybe show a message to the user
+            }
+        }
+        
+        function stopCamera() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                userCamera.srcObject = null;
+            }
+        }
+
+
+        startInterviewBtn.addEventListener('click', async () => {
+            const companyName = companySearchInput.value.trim();
+            if (!companyName) {
+                companyValidationMsg.textContent = "Please enter a company name.";
+                return;
+            }
+            startInterviewBtn.disabled = true;
+            startInterviewBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin"></i><span>Validating...</span>`;
+            lucide.createIcons();
+            companyValidationMsg.textContent = "";
+
+            const isValid = await validateCompany(companyName);
+            startInterviewBtn.disabled = false;
+            startInterviewBtn.innerHTML = `<i data-lucide="play-circle"></i><span>Start Interview</span>`;
+            lucide.createIcons();
+
+            if (isValid) {
+                sessionScores = []; sessionKeyTips = [];
+                interviewSetup.classList.add('hidden');
+                interviewSession.classList.remove('hidden');
+                startCamera();
+                getNewQuestion();
+            } else {
+                companyValidationMsg.textContent = `"${companyName}" doesn't seem to be a valid company.`;
+            }
+        });
+
+        endInterviewBtn.addEventListener('click', () => {
+            if(isRecording) recognition.stop();
+            stopCamera();
+            showSessionSummary();
+        });
+
+        function showSessionSummary() {
+            const modal = document.getElementById('session-summary-modal');
+            const avgScoreEl = document.getElementById('modal-avg-score');
+            const keyTipsEl = document.getElementById('modal-key-tips');
+            
+            const avgScore = sessionScores.length ? sessionScores.reduce((a, b) => a + b, 0) / sessionScores.length : 0;
+            avgScoreEl.textContent = avgScore ? avgScore.toFixed(1) : "N/A";
+            keyTipsEl.innerHTML = sessionKeyTips.length ? sessionKeyTips.map(tip => `<li>${tip}</li>`).join('') : '<li>No specific improvement tips were recorded.</li>';
+            modal.classList.remove('hidden');
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            resetInterviewState();
+        });
+        document.getElementById('modal-return-btn').addEventListener('click', () => {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            resetInterviewState();
+            window.location.hash = '#dashboard';
+        });
+
+        function resetInterviewState() {
+            stopCamera();
+            interviewSetup.classList.remove('hidden');
+            interviewSession.classList.add('hidden');
+            feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500"><p>Your feedback will appear here.</p></div>`;
+            questionText.classList.add('hidden');
+            questionLoader.style.display = 'flex';
+        }
+        
+        startAnsweringBtn.addEventListener('click', () => {
+            if (isRecording) {
+                recognition.stop();
+                isRecording = false;
+                startAnsweringBtn.classList.replace('bg-red-600', 'bg-green-600');
+                startAnsweringBtn.innerHTML = `<i data-lucide="mic"></i><span>Start Answering</span>`;
+                recordingIndicator.classList.add('hidden');
+                analyzeAnswer(questionText.textContent, transcriptArea.textContent);
+            } else {
+                transcriptArea.textContent = '';
+                recognition.start();
+                isRecording = true;
+                startAnsweringBtn.classList.replace('bg-green-600', 'bg-red-600');
+                startAnsweringBtn.innerHTML = `<i data-lucide="stop-circle"></i><span>Stop Answering</span>`;
+                recordingIndicator.classList.remove('hidden');
+                feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-400"><i data-lucide="loader-2" class="animate-spin h-6 w-6"></i><span class="ml-3">Waiting for you to finish...</span></div>`;
+            }
+            lucide.createIcons();
+        });
+
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
+        const API_KEY = "AIzaSyAqBvqiSPy6JVfOISl-YCPdK896nkq0WA0"; // PASTE YOUR KEY HERE
+
+        async function validateCompany(companyName) {
+            const prompt = `Is "${companyName}" a real company that plausibly hires for tech roles? Respond "YES" or "NO".`;
+            const response = await callGemini(prompt);
+            return response.trim().toUpperCase().includes("YES");
+        }
+
+        async function callGemini(prompt, isJson = false) {
+             if (!API_KEY) return JSON.stringify({error: "API Key not configured."});
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: isJson ? { responseMimeType: "application/json" } : {}
+                };
+                const response = await fetch(API_URL + API_KEY, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("API Error:", error);
+                return JSON.stringify({error: `AI Error. ${error.message}`});
+            }
+        }
+
+        async function getNewQuestion() {
+            questionLoader.style.display = 'flex';
+            questionText.classList.add('hidden');
+            startAnsweringBtn.disabled = true;
+            const company = companySearchInput.value;
+            const role = document.getElementById('role-select').value;
+            const typeText = typeSelect.options[typeSelect.selectedIndex].text;
+            const prompt = `As a hiring manager at ${company}, ask one challenging ${typeText} question for an ${role} role. Be direct, only provide the question.`;
+            const question = await callGemini(prompt);
+            questionText.textContent = question;
+            questionLoader.style.display = 'none';
+            questionText.classList.remove('hidden');
+            startAnsweringBtn.disabled = false;
+        }
+
+        async function analyzeAnswer(question, answer) {
+            feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-400"><i data-lucide="bot" class="animate-pulse h-6 w-6"></i><span class="ml-3">AI is analyzing...</span></div>`;
+            lucide.createIcons();
+            const prompt = `You are an expert interview coach. I was asked: "${question}". My answer: "${answer}". Provide feedback as a JSON object: { "clarity": { "score": <1-10>, "feedback": "<string>" }, "technical_accuracy": { "score": <1-10, or null>, "feedback": "<string>" }, "structure": { "score": <1-10>, "feedback": "<string>" }, "overall_score": <1-10>, "key_improvement": "<string>" }`;
+            const feedbackJsonString = await callGemini(prompt, true);
+            displayFeedback(feedbackJsonString);
+        }
+
+        function displayFeedback(jsonString) {
+            try {
+                const data = JSON.parse(jsonString);
+                updateProgress(typeSelect.value, data.overall_score);
+                sessionScores.push(data.overall_score);
+                sessionKeyTips.push(data.key_improvement);
+                feedbackArea.innerHTML = `
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg text-white">Overall Score: ${data.overall_score}/10</h3>
+                        <div class="w-full bg-slate-700 rounded-full h-2.5 mt-2"><div class="bg-gradient-to-r from-purple-500 to-primary h-2.5 rounded-full" style="width: ${data.overall_score * 10}%"></div></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div><h4 class="font-semibold text-slate-300">Clarity: ${data.clarity.score}/10</h4><p class="text-sm text-slate-400">${data.clarity.feedback}</p></div>
+                        <div><h4 class="font-semibold text-slate-300">Technical Accuracy: ${data.technical_accuracy.score ? data.technical_accuracy.score + '/10' : 'N/A'}</h4><p class="text-sm text-slate-400">${data.technical_accuracy.feedback}</p></div>
+                        <div><h4 class="font-semibold text-slate-300">Structure: ${data.structure.score}/10</h4><p class="text-sm text-slate-400">${data.structure.feedback}</p></div>
+                    </div>
+                    <div class="mt-6 bg-primary/10 p-4 rounded-lg border border-primary/30"><h4 class="font-bold text-primary/90 flex items-center"><i data-lucide="sparkles" class="w-5 h-5 mr-2"></i>Key Improvement</h4><p class="text-sm text-primary/80 mt-1">${data.key_improvement}</p></div>
+                    <button id="next-question-btn" class="mt-6 w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors">Next Question</button>
+                `;
+                lucide.createIcons();
+                document.getElementById('next-question-btn').addEventListener('click', () => {
+                     transcriptArea.textContent = '';
+                     feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500"><p>Your feedback will appear here.</p></div>`;
+                     getNewQuestion();
+                });
+            } catch (e) {
+                console.error("JSON Parse Error:", e);
+                feedbackArea.innerHTML = `<p class="text-red-400">Error: AI returned an invalid response. Try again.</p><p class="text-xs text-slate-500 mt-2">${jsonString}</p>`;
+            }
+        }
+        
+        // --- ROADMAPS & DASHBOARD COMPANY LOGIC ---
+        const allCompanies = [
+            { name: 'Google', logo: 'https://cdn.worldvectorlogo.com/logos/google-icon.svg'}, { name: 'Microsoft', logo: 'https://cdn.worldvectorlogo.com/logos/microsoft-5.svg'},
+            { name: 'Amazon', logo: 'https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg'}, { name: 'Meta', logo: 'https://cdn.worldvectorlogo.com/logos/meta-1.svg'},
+            { name: 'Apple', logo: 'https://cdn.worldvectorlogo.com/logos/apple-13.svg'}, { name: 'Netflix', logo: 'https://cdn.worldvectorlogo.com/logos/netflix-4.svg'},
+            { name: 'Adobe', logo: 'https://cdn.worldvectorlogo.com/logos/adobe-2.svg'}, { name: 'Nvidia', logo: 'https://cdn.worldvectorlogo.com/logos/nvidia.svg'},
+            { name: 'Tesla', logo: 'https://cdn.worldvectorlogo.com/logos/tesla-motors.svg'}, { name: 'Goldman Sachs', logo: 'https://cdn.worldvectorlogo.com/logos/goldman-sachs.svg'},
+            { name: 'Uber', logo: 'https://cdn.worldvectorlogo.com/logos/uber-2.svg' }, { name: 'Airbnb', logo: 'https://cdn.worldvectorlogo.com/logos/airbnb.svg' },
+            { name: 'Salesforce', logo: 'https://cdn.worldvectorlogo.com/logos/salesforce-2.svg' }, { name: 'Oracle', logo: 'https://cdn.worldvectorlogo.com/logos/oracle-6.svg' },
+            { name: 'IBM', logo: 'https://cdn.worldvectorlogo.com/logos/ibm.svg' }, { name: 'Intel', logo: 'https://cdn.worldvectorlogo.com/logos/intel-2.svg' },
+            { name: 'Cisco', logo: 'https://cdn.worldvectorlogo.com/logos/cisco-2.svg' }, { name: 'Qualcomm', logo: 'https://cdn.worldvectorlogo.com/logos/qualcomm.svg' },
+            { name: 'Broadcom', logo: 'https://cdn.worldvectorlogo.com/logos/broadcom-limited.svg' }, { name: 'Texas Instruments', logo: 'https://cdn.worldvectorlogo.com/logos/texas-instruments-1.svg' },
+            { name: 'SAP', logo: 'https://cdn.worldvectorlogo.com/logos/sap-2.svg' }, { name: 'Accenture', logo: 'https://cdn.worldvectorlogo.com/logos/accenture-6.svg' },
+            { name: 'TCS', logo: 'https://cdn.worldvectorlogo.com/logos/tata-consultancy-services.svg' }, { name: 'Infosys', logo: 'https://cdn.worldvectorlogo.com/logos/infosys-1.svg' },
+            { name: 'Wipro', logo: 'https://cdn.worldvectorlogo.com/logos/wipro-2.svg' }, { name: 'HCL Tech', logo: 'https://cdn.worldvectorlogo.com/logos/hcl-1.svg' },
+            { name: 'Paytm', logo: 'https://cdn.worldvectorlogo.com/logos/paytm-2.svg' }, { name: 'Zomato', logo: 'https://cdn.worldvectorlogo.com/logos/zomato-1.svg' },
+            { name: 'Flipkart', logo: 'https://cdn.worldvectorlogo.com/logos/flipkart.svg' }, { name: 'Atlassian', logo: 'https://cdn.worldvectorlogo.com/logos/atlassian.svg' },
+            { name: 'Spotify', logo: 'https://cdn.worldvectorlogo.com/logos/spotify-1.svg' }, { name: 'Twitter (X)', logo: 'https://cdn.worldvectorlogo.com/logos/x-5.svg' },
+            { name: 'LinkedIn', logo: 'https://cdn.worldvectorlogo.com/logos/linkedin-icon-2.svg' }, { name: 'Snapchat', logo: 'https://cdn.worldvectorlogo.com/logos/snapchat.svg' },
+            { name: 'Pinterest', logo: 'https://cdn.worldvectorlogo.com/logos/pinterest-1.svg' }, { name: 'Reddit', logo: 'https://cdn.worldvectorlogo.com/logos/reddit-4.svg' },
+            { name: 'Stripe', logo: 'https://cdn.worldvectorlogo.com/logos/stripe-4.svg' }, { name: 'Coinbase', logo: 'https://cdn.worldvectorlogo.com/logos/coinbase.svg' },
+            { name: 'Morgan Stanley', logo: 'https://cdn.worldvectorlogo.com/logos/morgan-stanley-2.svg' }, { name: 'J.P. Morgan', logo: 'https://cdn.worldvectorlogo.com/logos/jp-morgan-chase-co-1.svg' },
+            { name: 'DE Shaw', logo: 'https://cdn.worldvectorlogo.com/logos/d-e-shaw-co.svg' }, { name: 'Tower Research', logo: 'https://www.tower-research.com/assets/img/logo.svg' },
+            { name: 'Jane Street', logo: 'https://www.janestreet.com/assets/logo.svg' }, { name: 'Samsung', logo: 'https://cdn.worldvectorlogo.com/logos/samsung-5.svg' },
+            { name: 'Sony', logo: 'https://cdn.worldvectorlogo.com/logos/sony-3.svg' }, { name: 'HP', logo: 'https://cdn.worldvectorlogo.com/logos/hp-3.svg' },
+            { name: 'Dell', logo: 'https://cdn.worldvectorlogo.com/logos/dell-1.svg' }, { name: 'VMware', logo: 'https://cdn.worldvectorlogo.com/logos/vmware.svg' }
+        ];
+
+        const companyGrid = document.getElementById('company-grid');
+        const roadmapGrid = document.getElementById('roadmap-grid');
+        
+        function populateCompanyGrids() {
+            if(companyGrid) companyGrid.innerHTML = '';
+            if(roadmapGrid) roadmapGrid.innerHTML = '';
+
+            allCompanies.forEach(company => {
+                const companyId = company.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                const roadmapCardHTML = `
+                    <a href="#roadmap-detail-${companyId}" class="glass-card p-6 flex items-center space-x-4">
+                        <img src="${company.logo}" class="w-12 h-12 ${company.name === 'Amazon' ? 'bg-white rounded-full p-1' : ''}" onerror="this.style.display='none'">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">${company.name}</h3>
+                        </div>
+                    </a>`;
+                if(roadmapGrid) roadmapGrid.innerHTML += roadmapCardHTML;
+
+                const dashboardIconHTML = `
+                    <button class="company-icon-btn" data-company="${company.name}">
+                        <img src="${company.logo}" alt="${company.name}" class="w-10 h-10 transition-transform duration-300 hover:scale-110 ${company.name === 'Amazon' ? 'bg-white rounded-full p-0.5' : ''}" onerror="this.style.display='none'">
+                    </button>
+                `;
+                if(companyGrid) companyGrid.innerHTML += dashboardIconHTML;
+            });
+             // Add click listeners for dashboard icons
+            document.querySelectorAll('.company-icon-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('company-insight-search').value = btn.dataset.company;
+                    document.getElementById('find-insights-btn').click();
+                });
+            });
+        }
+        populateCompanyGrids();
+
+        const findInsightsBtn = document.getElementById('find-insights-btn');
+        const companyInsightSearch = document.getElementById('company-insight-search');
+        const companyInfoResults = document.getElementById('company-info-results');
+        
+        findInsightsBtn.addEventListener('click', getCompanyInsights);
+        companyInsightSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') getCompanyInsights();
+        });
+
+        async function getCompanyInsights() {
+            const companyName = companyInsightSearch.value.trim();
+            if (!companyName) {
+                companyInfoResults.innerHTML = `<p class="text-red-400">Please enter a company name.</p>`;
+                return;
+            }
+            companyInfoResults.innerHTML = `<div class="flex items-center justify-center text-slate-400"><i data-lucide="loader-2" class="animate-spin mr-2"></i>Fetching AI insights for ${companyName}...</div>`;
+            lucide.createIcons();
+
+            const prompt = `Act as a senior career coach for tech students. Provide a concise summary for a student preparing for an interview at ${companyName}. The summary should be a valid JSON object with the following keys: "company_name", "known_for", "interview_focus", "common_roles" (an array of strings), and "key_tip". If the company is not real, return a JSON object with an "error" key.`;
+
+            const response = await callGemini(prompt, true);
+            try {
+                const data = JSON.parse(response);
+                if (data.error) {
+                    companyInfoResults.innerHTML = `<p class="text-red-400">Could not find information for "${companyName}". Please check the name.</p>`;
+                } else {
+                    const companyId = data.company_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    companyInfoResults.innerHTML = `
+                        <div class="bg-slate-900/50 p-6 rounded-lg">
+                           <h3 class="text-2xl font-bold text-white">${data.company_name}</h3>
+                           <p class="text-sm text-slate-400"><strong class="text-slate-300">Known For:</strong> ${data.known_for}</p>
+                           <p class="text-sm text-slate-400 mt-2"><strong class="text-slate-300">Interview Focus:</strong> ${data.interview_focus}</p>
+                           <p class="text-sm text-slate-400 mt-2"><strong class="text-slate-300">Common Roles:</strong> ${data.common_roles.join(', ')}</p>
+                           <div class="mt-4 bg-primary/10 p-3 rounded-lg border border-primary/30">
+                             <p class="text-sm text-primary/80"><strong class="text-primary/90">Key Tip:</strong> ${data.key_tip}</p>
+                           </div>
+                           <a href="#roadmap-detail-${companyId}" class="mt-4 inline-block bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-primary-hover">View Full Roadmap →</a>
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                 companyInfoResults.innerHTML = `<p class="text-red-400">An error occurred while fetching AI insights. Please try again.</p>`;
+            }
+        }
+
+
+        document.getElementById('back-to-roadmaps').addEventListener('click', () => { window.location.hash = '#dashboard'; });
+
+        async function showRoadmapDetail(companyId) {
+            const companyName = companyId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const company = allCompanies.find(c => c.name.toLowerCase() === companyName.toLowerCase().split('(')[0].trim());
+            
+            const detailContent = document.getElementById('roadmap-detail-content');
+            detailContent.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-center mb-8">
+                    ${company ? `<img src="${company.logo}" class="w-20 h-20 mb-4 sm:mb-0 sm:mr-6 ${company.name === 'Amazon' ? 'bg-white rounded-full p-2' : ''}" onerror="this.style.display='none'">` : ''}
+                    <div>
+                        <h1 class="text-3xl sm:text-5xl font-black text-white text-center sm:text-left">${companyName}</h1>
+                    </div>
+                </div>
+                <div class="space-y-12">
+                     <div id="strategy-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Overall Prep Strategy</h2><div class="glass-card p-6 min-h-[150px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                    <div id="dsa-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Top DSA Questions</h2><div class="glass-card p-6 min-h-[200px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                    <div id="platforms-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Recommended Platform Practice</h2><div class="glass-card p-6 min-h-[200px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                </div>`;
+            lucide.createIcons();
+            
+            fetchOverallStrategy(companyName);
+            fetchDsaQuestions(companyName);
+            fetchPlatforms(companyName);
+        }
+
+        async function fetchOverallStrategy(companyName) {
+            const prompt = `As a senior career coach, provide a concise overall preparation strategy for a software engineer interview at ${companyName}. Focus on non-technical aspects like behavioral questions (mentioning their core values if known), system design approach, and any specific cultural fit points. Respond with a valid JSON object with one key: "strategy_points" (an array of strings).`;
+            const response = await callGemini(prompt, true);
+            const section = document.querySelector('#strategy-section .glass-card');
+            try {
+                const data = JSON.parse(response);
+                let content = '<ul class="space-y-3 list-disc list-inside text-slate-300">';
+                data.strategy_points.forEach(point => {
+                    content += `<li>${point}</li>`;
+                });
+                section.innerHTML = content + '</ul>';
+            } catch(e) { section.innerHTML = `<p class="text-red-500">Could not load preparation strategy.</p>`; }
+        }
+        
+        async function fetchDsaQuestions(companyName) {
+            const prompt = `List top 5 DSA topics and one example question each for a Software Engineer at ${companyName}. Respond with a JSON array of objects with "topic" and "question" keys.`;
+            const response = await callGemini(prompt, true);
+            const section = document.querySelector('#dsa-section .glass-card');
+            try {
+                const data = JSON.parse(response);
+                let content = '<div class="space-y-4">';
+                data.forEach(item => content += `<div class="p-4 bg-slate-900/50 rounded-lg"><h4 class="font-semibold text-primary">${item.topic}</h4><p class="text-slate-300">${item.question}</p></div>`);
+                section.innerHTML = content + '</div>';
+            } catch(e) { section.innerHTML = `<p class="text-red-500">Could not load DSA questions.</p>`; }
+        }
+
+        async function fetchPlatforms(companyName) {
+            const prompt = `Act as an expert FAANG interview coach. For a Software Engineer interview at ${companyName}, recommend 2 coding platforms like LeetCode or HackerRank. For each platform, provide a list of 3 highly relevant practice problems often asked by this company, with direct URLs to each problem. Also provide a brief strategy on how to use the platform. Respond with a valid JSON array of objects. Each object must have these keys: "platform_name", "strategy", and "recommended_problems" (an array of objects, where each object has "name" and "url" keys).`;
+            const response = await callGemini(prompt, true);
+            const section = document.querySelector('#platforms-section .glass-card');
+             try {
+                const data = JSON.parse(response);
+                let content = '<div class="space-y-6">';
+                data.forEach(item => {
+                    content += `
+                        <div class="p-4 bg-slate-900/50 rounded-lg">
+                            <h3 class="text-xl font-bold text-white">${item.platform_name}</h3>
+                            <p class="text-sm text-slate-400 mt-1 mb-3">${item.strategy}</p>
+                            <h4 class="font-semibold text-slate-300 mb-2">Recommended Problems:</h4>
+                            <ul class="list-disc list-inside text-slate-400 text-sm space-y-1">
+                                ${item.recommended_problems.map(problem => `<li><a href="${problem.url}" target="_blank" class="text-indigo-400 hover:underline">${problem.name}</a></li>`).join('')}
+                            </ul>
+                        </div>
+                    `
+                });
+                section.innerHTML = content + '</div>';
+            } catch(e) { section.innerHTML = `<p class="text-red-500">Could not load platform recommendations.</p>`; }
+        }
+        
+        // --- Final Initializations ---
+        renderProgressChart();
+        const c1Time = new Date().getTime() + 1000 * 60 * 60 * 28 + 1000 * 60 * 32;
+        const c2Time = new Date().getTime() + 1000 * 60 * 60 * 80 + 1000 * 60 * 15;
+        startCountdown('countdown1', c1Time);
+        startCountdown('countdown2', c2Time);
+        startCountdown('countdown3', c1Time);
+        startCountdown('countdown4', c2Time);
+
+    });
+    </script>
+</body>
+</html>
